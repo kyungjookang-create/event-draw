@@ -67,6 +67,7 @@
             visibility: visible;
             opacity: 1;
         }
+        /* '추첨 중'일 때의 스타일 (회색) */
         #result.spinning {
             color: #95a5a6; 
         }
@@ -86,20 +87,18 @@
     <script>
         // --- ⚙️ 여기에서 경품 수량을 설정하세요 ---
         const prizeSettings = {
-            "🚀 무신사 머니 100만원 - 팀무신사 플랫폼에서 사용하세요!": 2,
-            "🎉 복지포인트 100만원 - 연말 휴가 때 사용하세요!": 2,
-            "🍰 갤럭시 워치 - S&C 기부 물품": 2,
-            "☕ 핀카 굿즈 - S&C 기부 물품": 2,
-            "😥 꽝 (다음 기회에...)": 1992
+            "무신사 머니 100만원 - 팀무신사 플랫폼에서 사용하세요!": 2,
+            "복지포인트 100만원 - 연말 휴가 때 사용하세요!": 2,
+            "갤럭시 워치 - S&C 기부 물품": 2,
+            "핀카 굿즈 - S&C 기부 물품": 2,
+            " 꽝! (다음 기회에...)": 1996
         };
         // ----------------------------------------
 
         // --- 'prizes' 배열 자동 생성기 (수정 금지) ---
-        // 1. 참여 기록을 위한 키 (이벤트 리셋 시 이름 변경)
-        const participationKey = 'eventParticipated_v4';
-        const savedPrizeKey = 'savedPrize_v3';
+        const participationKey = 'eventParticipated_v5'; // 이벤트 리셋을 위해 키 변경
+        const savedPrizeKey = 'savedPrize_v4';      // 이벤트 리셋을 위해 키 변경
         
-        // 2. 설정(prizeSettings)을 기반으로 'prizes' 배열 생성
         const prizes = [];
         for (const prizeName in prizeSettings) {
             const quantity = prizeSettings[prizeName];
@@ -107,8 +106,7 @@
                 prizes.push(prizeName);
             }
         }
-        // 3. 배열을 무작위로 섞음 (Fisher-Yates shuffle)
-        // (이 코드는 100% 공정한 확률을 위해 배열을 섞어줍니다)
+        // 배열을 무작위로 섞음 (공정한 확률)
         for (let i = prizes.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [prizes[i], prizes[j]] = [prizes[j], prizes[i]];
@@ -116,7 +114,7 @@
         // ----------------------------------------
 
         
-        // --- (이전과 동일) 페이지 로드 시, 이미 참여했는지 확인 ---
+        // --- 페이지 로드 시, 이미 참여했는지 확인 ---
         window.onload = function() {
             if (localStorage.getItem(participationKey) === 'true') {
                 const buttonElement = document.getElementById('drawButton');
@@ -129,13 +127,14 @@
                 const savedPrize = localStorage.getItem(savedPrizeKey);
                 if (savedPrize) {
                     const resultElement = document.getElementById('result');
-                    resultElement.textContent = `[${savedPrize}] 당첨 기록이 있습니다.`;
+                    // "축하합니다" 멘트 삭제
+                    resultElement.textContent = `[${savedPrize}]`; 
                     resultElement.classList.add('show');
                 }
             }
         };
 
-        // --- '경품 뽑기' 함수 (애니메이션 포함) ---
+        // --- '경품 뽑기' 함수 (애니메이션 삭제됨) ---
         function drawPrize() {
             if (localStorage.getItem(participationKey) === 'true') {
                 alert("이미 참여하셨습니다.");
@@ -145,50 +144,35 @@
             const resultElement = document.getElementById('result');
             const buttonElement = document.getElementById('drawButton');
 
+            // 1. 버튼 즉시 비활성화 및 텍스트 변경
             buttonElement.disabled = true;
             buttonElement.textContent = '...추첨 중...';
 
+            // 2. 결과 창에 '...추첨 중...' 텍스트 표시 (회색으로)
             resultElement.classList.add('show');
             resultElement.classList.add('spinning'); 
+            resultElement.textContent = '...추첨 중...';
 
-            // --- 룰렛 애니메이션 시작 ---
-            const animationInterval = setInterval(function() {
-                // 'prizes' 배열에 있는 실제 경품명으로 룰렛을 돌림
-                const randomSpinPrize = prizes[Math.floor(Math.random() * prizes.length)];
-                resultElement.textContent = randomSpinPrize;
-            }, 100); 
 
-            // --- 3초 뒤에 애니메이션 종료 ---
+            // --- 3초 뒤에 결과 표시 (setTimeout) ---
             setTimeout(function() {
-                clearInterval(animationInterval);
-
-                // ⭐ '진짜' 경품 선택 (중요!)
-                // 100% 확률이 아닌, 'localStorage'에 저장된 횟수를 기반으로
-                // 'prizes' 배열에서 순서대로 경품을 지급해야 합니다.
-                // ...하지만 이 방식은 GitHub Pages에서 구현하기 매우 복잡합니다.
-
-                // ⭐ [수정된 로직]
-                // 1인 1회 참여가 보장되므로, 
-                // 그냥 랜덤으로 뽑아도 전체 확률은 수량에 맞게 수렴합니다.
+                
+                // 3. '진짜' 경품 선택 (확률 기반)
                 const randomIndex = Math.floor(Math.random() * prizes.length);
                 const selectedPrize = prizes[randomIndex];
-                
-                // (참고: 이 방식은 여전히 '확률'입니다.
-                // 100명이 참여해도 '1등'이 0명이거나 2명이 나올 수 있습니다.)
-                // (하지만 총 참여 인원수와 경품 총 개수를 정확히 맞춘다면 (예: 100명/100개)
-                // '1인 1회' 제한 하에 이 방식이 가장 공정하고 합리적입니다.)
 
-
+                // 4. '진짜' 결과 표시 (스타일 원복 및 "축하합니다" 멘트 삭제)
                 resultElement.classList.remove('spinning'); 
-                resultElement.textContent = `[${selectedPrize}] 당첨!`;
+                resultElement.textContent = `[${selectedPrize}]`; // 멘트 삭제됨
                 
+                // 5. 버튼 텍스트 최종 변경
                 buttonElement.textContent = '추첨 완료!';
 
-                // 브라우저에 "참여 완료" 표식 저장
+                // 6. 브라우저에 "참여 완료" 표식 저장
                 localStorage.setItem(participationKey, 'true');
                 localStorage.setItem(savedPrizeKey, selectedPrize);
 
-            }, 3000); 
+            }, 3000); // 3초 딜레이
         }
     </script>
 
