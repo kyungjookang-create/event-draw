@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 응원 보너스 추첨기</title>
+    <style>
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+            text-align: center;
+            flex-direction: column;
+        }
+        .container {
+            background: white;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        #drawButton {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        #drawButton:hover {
+            background-color: #2980b9;
+        }
+        #drawButton:active {
+            transform: scale(0.98);
+        }
+        #result {
+            margin-top: 30px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #e74c3c;
+            /* 결과가 나오기 전에는 숨김 */
+            visibility: hidden; 
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        /* 결과가 나왔을 때의 스타일 */
+        #result.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎁 응원 보너스 추첨기</h1>
+        <p>응원 메시지를 보내주셔서 감사합니다!<br>아래 버튼을 눌러 행운의 경품을 확인하세요.</p>
+        
+        <button id="drawButton" onclick="drawPrize()">경품 뽑기!</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 경품 목록 (여기서 경품과 수량을 조절할 수 있습니다)
+        const prizes = [
+            "☕ 스타벅스 커피 쿠폰",
+            "☕ 스타벅스 커피 쿠폰",
+            "☕ 스타벅스 커피 쿠폰",
+            "🍰 디저트 교환권",
+            "🍰 디저트 교환권",
+            "🎁 편의점 5천원권",
+            "🎁 편의점 5천원권",
+            "🎁 편의점 5천원권",
+            "🎉 올리브영 1만원권",
+            "🎉 올리브영 1만원권",
+            "✨ 신세계 상품권 3만원권",
+            "🚀 반차 찬스권 (오후)",
+            "😥 꽝! (다음 기회에...)",
+            "😥 꽝! (다음 기회에...)"
+        ];
+
+        function drawPrize() {
+            // 1. 결과 텍스트 영역을 가져옴
+            const resultElement = document.getElementById('result');
+            // 2. 버튼을 가져옴
+            const buttonElement = document.getElementById('drawButton');
+
+            // 3. 경품 목록에서 랜덤으로 하나를 선택
+            // Math.random() * prizes.length : 0부터 경품 배열 길이(14) 직전까지의 랜덤 소수점 생성
+            // Math.floor() : 소수점을 버려 0부터 13까지의 정수를 만듦
+            const randomIndex = Math.floor(Math.random() * prizes.length);
+            const selectedPrize = prizes[randomIndex];
+
+            // 4. 화면에 결과 표시
+            resultElement.textContent = `축하합니다! [${selectedPrize}] 당첨!`;
+            
+            // 5. 결과 영역을 보이게 함
+            resultElement.classList.add('show');
+
+            // 6. 버튼을 비활성화하여 중복 뽑기 방지
+            buttonElement.disabled = true;
+            buttonElement.textContent = '추첨 완료!';
+            buttonElement.style.backgroundColor = '#95a5a6'; // 회색으로 변경
+            buttonElement.style.cursor = 'not-allowed';
+        }
+    </script>
+
+</body>
+</html>
